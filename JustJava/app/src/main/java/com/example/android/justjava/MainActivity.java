@@ -1,8 +1,12 @@
 package com.example.android.justjava;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
@@ -18,8 +22,14 @@ public class MainActivity extends AppCompatActivity {
 
     public void submitOrder(View pView)
     {
-        displayQuantity();
-        displayPrice(2*5);
+        Intent lIntent = new Intent(Intent.ACTION_SENDTO);
+        lIntent.setData(Uri.parse("mailto:"));
+        lIntent.putExtra(Intent.EXTRA_SUBJECT, "Just Java order");
+        lIntent.putExtra(Intent.EXTRA_TEXT, getOrderSummary());
+        if(lIntent.resolveActivity(getPackageManager()) != null)
+        {
+            startActivity(lIntent);
+        }
     }
 
     public void increment(View pView)
@@ -43,10 +53,28 @@ public class MainActivity extends AppCompatActivity {
         lView.setText(String.valueOf(miQuantity));
     }
 
-    public void displayPrice(int number)
+    public int calculatePrice()
     {
-        TextView lView = (TextView) findViewById(R.id.price_text_view);
-        String lMessage = "Total: "+"$"+String.valueOf(miQuantity*5)+"\nThank you!";
-        lView.setText(lMessage);
+        int lPrice = miQuantity * 5;
+
+        if(((CheckBox)findViewById(R.id.whipped_cream)).isChecked())
+            lPrice += 1;
+
+        if(((CheckBox)findViewById(R.id.chocolate)).isChecked())
+            lPrice += 2;
+
+        return lPrice;
+    }
+
+    public String getOrderSummary()
+    {
+        String lMessage = "Name: "+ ((EditText)findViewById(R.id.name)).getText();
+        lMessage += "\nAdd whipped cream? " + ((CheckBox)findViewById(R.id.whipped_cream)).isChecked();
+        lMessage += "\nAdd chocolate? " + ((CheckBox)findViewById(R.id.chocolate)).isChecked();
+        lMessage += "\nQuantity: "+miQuantity;
+        lMessage += "\nTotal: "+"$"+calculatePrice();
+        lMessage += "\nThank you!";
+
+        return lMessage;
     }
 }
